@@ -4,7 +4,9 @@ Code V related files and troubleshooting
 ##Content:
 
 \dll folder : sample files to for User Defined Gradient Index. See the next section for more details
+
 defaults.seq : initialize the environment for practical purpose. If you did not install Code V in the default location, change paths accordingly.
+
 axial_profile: plots the axial profile of a beam between the before the last surface and the image plane, and return the FWHM dimensions of the beam's hotspot. This macro was designed for Bessel beam generation, see the file's header for more details.
 
 
@@ -31,6 +33,7 @@ For this, I strongly suggest to start from one of my codes, either dll\grnaxicon
 You should now have a file filename.c with a function of the same name as your UDG routine. To create a .dll with MinGW, we first need to compile the source code into a shareable object (.o extension), and then compile this object into a .dll. Open your command prompt (CMD), navigate to the location of your source code and type the following with by substituting your own filename (if you did not install MinGW in the default location, change the path accordingly):
 
   a. C:\MinGW\bin\mingw32-gcc -c filename.c
+  
   b. C:\MinGw\bin\mingw32-gcc -shared filename.o -o filename.dll
   
 A .dll of the same name as your filename should now have been generated.
@@ -42,12 +45,19 @@ Open Code V and open the .lens file of the system where you wish to apply your U
 Alternatively, you can enter your GRIN material through the command line like this:
 
 PRV
+
 PWL wavelength1 wavelength2 ...
+
 'glass_name' brind1 brind2 ...
+
 UDG
+
 UDG C1 value_wavelength1 value_wavelength2 ...
+
 UDG C2 value_wavelength1 value_wavelength2 ...
+
 ...
+
 END
 
 Where PWL are the wavelengths for which you have data, in mm. The 'glass_name' is the one of your choice, make sure to put it in quotes, and the brindi is the base refractive index of wavelength i. UDG C1 refers to the first coefficient in your UDG profile, and then you list the values for each wavelength. Repeat this for all the coefficient needed to compute your UDG (maximum of 150 coefficients).

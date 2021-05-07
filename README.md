@@ -8,7 +8,7 @@ Creating DLLs from a C source file:
 
 Download and install MinGW: https://www.ics.uci.edu/~pattis/common/handouts/mingweclipse/mingw.html. For me, step 10 did not work. A simple workaround is to open the command prompt (type CMD on the Windows entry) and copy the following (correct the path if you did not install MinGW directly in C:\):
 
-  set PATH=C:\MinGW\msys\1.0\bin;%Path%
+  set PATH=C:\MinGW\bin;%Path%
   
   set PATH=C:\MinGW\msys\1.0\bin;%Path%
   

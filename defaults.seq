@@ -1,0 +1,15 @@
+! DEFAULTS.SEQ
+
+GBL NUM ^pi ^deg2rad ^rad2deg	! Global constants
+
+ver all no 			! Turns off the display of macro commands
+
+^pi == 4 * atanf(1)		! Pi = 3.1415...
+^deg2rad == ^pi/180		! Degrees to radians conversion factor
+^rad2deg == 180/^pi		! Radians to degrees conversion factor
+
+rdm y 			! Default to radius mode
+ddm m 			! Default dimensions to millimeters
+
+pth len CV_LENS: 		! Lens search path
+pth seq CV_MACRO: CV_LENS:	! Sequence search path

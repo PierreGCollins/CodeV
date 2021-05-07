@@ -1,0 +1,242 @@
+! axial_profile.seq
+! @author: pierregcollins
+! 
+! Computes the axial intensity profile after the last surface before the image plane of
+! a gaussian beam before for a specified range, step increment and input waist diameter.
+! 
+! The thickness before the image plane is varied along the specfied range, following
+! thickness values are spaced by the step increment. The beam synthesis propagation
+! (BSP) tool is used to get intensity profile at each plane. BSP is used to take into
+! account diffraction effect which cannot be obtained through standard ray tracing.
+! As such, BSP is very useful to get profiles of optical systems which exploit coherent
+! phenomena, e.g. the formation of a Gauss-Bessel beam through spatial interference of
+! a gaussian wavefront incident on a conic axicon lens (which is the case for which
+! this macro was written in the first place).
+!
+! Here we compute the 2D intensity data grid at the image plane for each position. Then
+! we take the central row of each slice to represent the transverse intensity profile of
+! each axial position assuming rotationnal symmetry about the optical axis. The intensity 
+! profiles of all planes are put in a temporary buffer to be displayed in a Scalar Field 
+! Pseudo-Color Raster Plot.
+!
+! ARG0 "Macro to visualise the axial intensity profile of a gaussian beam after the"
+! ARG0 "last surface before the image plane with the BSP tool. WARNING: Make sure"
+! ARG0 "no important data are stored in buffers B1 and B2 prior the use of this macro."
+
+! ARG1 NAME "Start position (mm)"
+! ARG1 TYPE NUM
+! ARG1 DEFAULT 0
+! ARG1 HELP "Initial image plane position relative to the last surface"
+!
+! ARG2 NAME "Axial range (mm)"
+! ARG2 TYPE NUM
+! ARG2 DEFAULT 0
+! ARG2 HELP "Axial range to compute the intensity profile"
+!
+! ARG3 NAME "Step increment (mm)"
+! ARG3 TYPE NUM
+! ARG3 DEFAULT 1
+! ARG3 HELP "Determines the axial sampling of the profile"
+!
+! ARG4 NAME "Input waist diameter (mm)"
+! ARG4 TYPE NUM
+! ARG4 DEFAUlT 1
+! ARG4 HELP "Waist diameter of the incident gaussian beam on the system"
+!
+! ARG5 NAME "Number of transverse points"
+! ARG5 TYPE NUM
+! ARG5 DEFAULT 101
+! ARG5 HELP "Number of points on each of the transverse axis (x & y)"
+!
+! ARG6 NAME "Transverse range (mm)"
+! ARG6 TYPE NUM
+! ARG6 DEFAULT 1
+! ARG6 HELP "Region of interest size in each of the transverse dimensions (x & y)"
+!
+! ARG7 NAME "X axis offset (mm)"
+! ARG7 TYPE NUM
+! ARG7 DEFAULT 0
+! ARG7 HELP "Specifies the center grid location on the x axis, beam should be centered on each axis"
+!
+! ARG8 NAME "Y axis offset (mm)"
+! ARG8 TYPE NUM
+! ARG8 DEFAULT 0
+! ARG8 HELP "Specifies the center grid location on the y axis, beam should be centered on each axis"
+!
+! ARG9 NAME "Intensity scale"
+! ARG9 TYPE STR
+! ARG9 CHOICE "Original" "log10" "Normalized"
+! ARG9 DEFAULT "log10"
+! ARG9 HELP "Set the intensity values to the specified scale. Choose Original to display original values."
+
+! Input values verification
+IF (#1<0) OR (#2<0) OR (#3<=0) OR (#4<=0) OR (#5<=0) OR (#6<=0)
+	WRI "Make sure there is no negative input"
+	WRI "Make sure step increment, waist diameter, number of transverse points"
+	WRI "and transverse range are not null"
+	GOT exit
+ELS IF #2/#3+1 > 10000
+	WRI "Cannot compute more than 10 000 axial points"
+	WRI "Verify that (axial range / step increment) + 1 =< 10 000"
+	GOT exit
+END IF
+
+^ini_pos == (THI SI-1) 	! Current location of the image plane
+
+^i == ROUNDF(#5/2)	! Set central row of the grid for data selection
+wri ^i
+
+buf del B1 		! Clear any already existing buffer B1, B1 will store each plane data, then the final axial profile
+buf del B2 		! Clear any already existing buffer B2, B2 will store axial profile before transposition and log scale conversion
+buf mov B2 		! Create buffer B1 and B2
+
+^pos == #1
+^rows == 0
+! Iterates the entire axial range
+WHI (^pos - #1)<=#2
+	
+	THI SI-1 ^pos 		! Set the before the last surface's thickness (i.e. image plane position)
+	
+	BSP
+		WRX #4		! Since not specified, WRY == WRX
+		WBF INT SI B1	! Save 2D intensity data in buffer B1
+		GPX SI #5		! Number of points in the x axis cross-section at image surface
+		GPY SI #5		! Number of points in the y axis cross-section at image surface
+		GWX SI #6 		! Region of interest size in the x dimension at image surface
+		GWY SI #6		! Region of interest size in the y dimension at image surface 
+	GO
+
+	buf mov B1 			! Move to buffer B1
+	buf fnd "Array Size" 
+	^iData == (buf.i)+^i 	! Intensity data of interest at ^i rows below "Array Size"
+	buf mov B2 IL+1
+	buf cop B1 I^iData	! Copy ^iData row of B1 into B2, J1..L of B1 implied
+
+	buf del B1			! Clear temporary buffer B1
+	^pos == ^pos + #3
+	^rows == ^rows + 1
+END WHI
+
+buf mov B1
+buf cop B2 trn
+
+
+! Find max value
+buf mov B1
+^mid_row == ROUNDF((buf.lst)/2)
+^max == 0 					! Maximum intensity value in the middle row
+^max_col == 0 				! Column associated to the max value
+FOR ^col 1 (buf.col)
+	buf mov I^mid_row J^col
+	IF (buf.num) > ^max
+		^max == (buf.num)
+		^max_col == (buf.j)
+	END IF
+END FOR
+
+
+! Normalize data for calculations in buffer B2
+buf del B2
+buf mov B2
+buf cop B1
+
+FOR ^row 1 (buf.lst)
+	For ^col 1 (buf.col)
+		buf mov I^row J^col
+		^dat == (buf.num)
+		^dat == ^dat/^max
+		buf put I^row J^col ^dat
+	END FOR
+END FOR
+
+
+! Compute focal spot's axial length
+^zmin == 0
+^zmax == 0
+FOR ^col 1 (buf.col)
+	buf mov I^mid_row J^col
+	IF (buf.num) >= 0.5 
+		^zmin == ^col
+		GOT end_loop 		! Start of the focal axial spot
+	END IF
+END FOR
+LBL end_loop
+
+FOR ^col (buf.col) 1 -1
+	buf mov I^mid_row J^col
+	IF (buf.num) >= 0.5
+		^zmax == ^col		! End of axial focal line
+		GOT end_loop2
+	END IF
+END FOR
+LBL end_loop2
+
+^axial_length == (^zmax-^zmin)*#3
+WRI "The axial focal spot length is:" ^axial_length "mm"
+
+
+! Compute focal spot's transverse length
+^xmin == 0
+^xmax == 0
+For ^row ^mid_row 1 -1
+	buf mov I^row J^max_col
+	IF (buf.num) <= 0.5
+		^xmin == ^row 		! Start of the transverse spot
+		GOT end_loop3
+	END IF
+END FOR
+LBL end_loop3
+
+FOR ^row ^mid_row (buf.lst)
+	buf mov I^row J^max_col
+	IF (buf.num) <= 0.5
+		^xmax == ^row 		! End of the transverse spot
+		GOT end_loop4
+	END IF
+END FOR
+LBL end_loop4
+
+^transverse_length == (^xmax-^xmin)*(#6/#5)
+WRI "The transverse spot length is" ^transverse_length "mm"
+
+
+buf mov B1
+IF #9 = "log10" 			! Convert values in logarithmic scale
+	^offset == 10
+	FOR ^line 1 (buf.lst)
+		buf mov I^line J1
+		FOR ^column 1 (buf.col)
+			buf mov I^line J^column
+			^val == (buf.num)
+			IF ^val>1e-10
+				^val == LOG10F(^val)+ ^offset
+				buf put B1 I^line J^column ^val
+			ELS
+				buf put B1 I^line J^column 0
+			END IF
+		END FOR
+	END FOR
+ELS IF #9 = "Normalized"	! Put normalized values stored in B2 into B1 for display
+	buf del B1
+	buf mov B1
+	buf cop B2
+END IF
+
+
+! Display axial profile stored in B1, axial axis is along the rows, transverse axis along the columns
+UGR
+	TIT "Beam Intensity"		 	! Plot title
+	STI "Axial Profile (mm)"		! Subtitle
+	GRI 1 1 					! Specify grid spacing between grid values, used only to calculate scale bar factor
+	uni "Z" "XY"
+	SFP B1 i1..#5 j1..^rows DIS
+	CLR SPE 					! Type of color scale to display the intensity data
+	RAN SCA 100	 				! Number of color steps into which the range is devided
+!	RAN COL SPE 				! Color type used to display intensity data
+GO
+
+THI SI-1 ^ini_pos 	! Set the image plane to its location before the use of this macro
+ 
+buf del B1 			! Clear temporary buffer B1
+buf del B2 			! Clear temporary buffer B2
+LBL exit

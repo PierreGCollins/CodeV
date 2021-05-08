@@ -16,7 +16,7 @@ Code V documentation specifies many ways to create a custom gradient index (GRIN
 
 ### 1. Install utility tools
 
-Download and install MinGW: https://www.ics.uci.edu/~pattis/common/handouts/mingweclipse/mingw.html. For me, weirdly, step 10 did not work. A simple workaround is to open the command prompt (type CMD on the Windows entry) and copy the following (correct the path if you did not install MinGW directly in C:\):
+Download and install MinGW: https://www.ics.uci.edu/~pattis/common/handouts/mingweclipse/mingw.html. For me, weirdly, step 10 did not work. A simple workaround is to open the command prompt (type CMD on the Windows entry) and copy the following (correct the path if you did not install MinGW directly in C:\ ):
 
   set PATH=C:\MinGW\bin;%Path%
   

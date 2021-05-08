@@ -5,7 +5,7 @@ Code V related files and troubleshooting
 
 \dll folder : Sample files for User Defined Gradient Index. See the next section for more details
 
-defaults.seq : Initializes the environment for practical purposes. If you did not install Code V in the default location, change paths accordingly.
+defaults.seq : Initializes the environment for practical purposes. If you did not install Code V in the default location, change paths accordingly. This must be located in CVUSER, and it will be run automatically at the start of each Code V session.
 
 axial_profile: Plots the axial profile of a beam between the before the last surface and the image plane, and returns the FWHM dimensions of the beam's hotspot. This macro was designed for Bessel beam generation, see the file's header for more details.
 

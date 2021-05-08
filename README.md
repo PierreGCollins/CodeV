@@ -40,7 +40,7 @@ A .dll of the same name as your filename should now have been generated.
 
 ### 4. Define your custom GRIN material
  
-Open Code V and open the .lens file of the system where you wish to apply your UDG profile (or directly create a new optical system to test your routine). You first need to define a custom glass. Go to Lens -> Add Private Catalog Glass -> Gradient Index... . Give to the GRIN the name you want and choose User Defined as the type. The default step size should be enough for most applications, but by giving a smaller value you will have more accurate results, which also means longer computation time. Enter a line for all the wavelengths for which you have index data. The Index entry is your base index (brind variable in the source code). Then you enter the coefficients needed for the calculations of your UDG profile. Make sure to respect the order of your source code when you type them. Then click OK.
+Open Code V and open the .lens file of the system where you wish to apply your UDG profile (or directly create a new optical system to test your routine). You first need to define a custom glass. Go to Lens -> Add Private Catalog Glass -> Gradient Index... . Give to the GRIN the name you want (8 characters maximum) and choose User Defined as the type. The default step size should be enough for most applications, but by giving a smaller value you will have more accurate results, which also means longer computation time. Enter a line for all the wavelengths for which you have index data. The Index entry is your base index (brind variable in the source code). Then you enter the coefficients needed for the calculations of your UDG profile. Make sure to respect the order of your source code when you type them. Then click OK.
 
 Alternatively, you can enter your GRIN material through the command line like this:
 
@@ -60,7 +60,7 @@ UDG C2 value_wavelength1 value_wavelength2 ...
 
 END
 
-Where PWL are the wavelengths for which you have data, in nm. The 'glass_name' is a name of your choice, make sure to put it in quotes, and the brindi is the base refractive index of wavelength i. UDG C1 refers to the first coefficient in your UDG profile, and then you list the values for each wavelength. Repeat this for all the coefficient needed to compute your UDG (maximum of 150 coefficients).
+Where PWL are the wavelengths for which you have data, in nm. The 'glass_name' is a name of your choice (8 characters maximum), make sure to put it in quotes, and the brindi is the base refractive index of wavelength i. UDG C1 refers to the first coefficient in your UDG profile, and then you list the values for each wavelength. Repeat this for all the coefficient needed to compute your UDG (maximum of 150 coefficients).
 
 Note that you have to redefine your GRIN material, i.e. redo this step, for each .lens file where you want to use your UDG subroutine. For practical purpose, you could write a macro to do this for you if you plan on using your glass in many files.
 

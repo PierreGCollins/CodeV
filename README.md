@@ -60,7 +60,7 @@ UDG C2 value_wavelength1 value_wavelength2 ...
 
 END
 
-Where PWL are the wavelengths for which you have data, in nm. The 'glass_name' is a name of your choice (8 characters maximum), make sure to put it in quotes, and the brindi is the base refractive index of wavelength i. UDG C1 refers to the first coefficient in your UDG profile, and then you list the values for each wavelength. Repeat this for all the coefficient needed to compute your UDG (maximum of 150 coefficients).
+Where PWL are the wavelengths for which you have data, in nm. The 'glass_name' is a name of your choice (8 characters maximum), make sure to put it in quotes, and the brindi is the base refractive index of wavelength i. UDG C1 refers to the first coefficient in your UDG profile, and then you list the values for each wavelength. Repeat this for all the coefficients needed to compute your UDG (maximum of 150 coefficients).
 
 Note that you have to redefine your GRIN material, i.e. redo this step, for each .lens file where you want to use your UDG subroutine. For practical purpose, you could write a macro to do this for you if you plan on using your glass in many files.
 
